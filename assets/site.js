@@ -4,8 +4,9 @@
   const entriesRoot = document.querySelector("#entries");
   const dayCount = document.querySelector("#day-count");
   const runStatus = document.querySelector("#run-status");
+  const statusText = document.querySelector("#status-text");
 
-  if (!entriesRoot || !dayCount || !runStatus) return;
+  if (!entriesRoot || !dayCount || !runStatus || !statusText) return;
 
   const element = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -48,21 +49,14 @@
     const titleId = `transmission-${entry.date}`;
     article.setAttribute("aria-labelledby", titleId);
 
-    const rail = element("div", "signal-rail");
-    rail.setAttribute("aria-hidden", "true");
-    rail.append(element("span", "", "KM"), element("i"), element("small", "", String(entry.day).padStart(3, "0")));
-
-    const body = element("div", "transmission-body");
     const heading = element("header", "transmission-heading");
-    const headingCopy = document.createElement("div");
-    headingCopy.append(
-      element("p", "sequence", `${latest ? "Latest" : "Archive"} // Signal ${String(entry.day).padStart(3, "0")}`),
-      element("h3", "", latest ? "Current transmission" : `Transmission ${String(entry.day).padStart(3, "0")}`)
-    );
-    headingCopy.lastElementChild.id = titleId;
+    heading.append(element("p", "entry-number", `Day ${entry.day}${latest ? " · latest" : ""}`));
     const time = element("time", "", formatDate(entry.date));
     time.dateTime = entry.date;
-    heading.append(headingCopy, time);
+    heading.append(time);
+
+    const title = element("h3", "", latest ? "Current public note" : `Public note from day ${entry.day}`);
+    title.id = titleId;
 
     const quote = document.createElement("blockquote");
     quote.append(element("p", "", entry.public_transmission));
@@ -72,7 +66,7 @@
       row("Model", entry.model),
       row("Reasoning", entry.reasoning_effort),
       row("Duration", formatDuration(entry.duration_seconds)),
-      row("Codex", entry.codex_version)
+      row("Codex version", entry.codex_version)
     );
 
     const hashes = element("dl", "hashes");
@@ -83,8 +77,10 @@
       row("Private commit", entry.private_commit, true)
     );
 
-    body.append(heading, quote, provenance, hashes);
-    article.append(rail, body);
+    const details = element("details", "record-details");
+    details.append(element("summary", "", "Verification details"), hashes);
+
+    article.append(heading, title, quote, provenance, details);
     return article;
   };
 
@@ -92,8 +88,9 @@
     if (!payload || payload.schema_version !== 1 || !Array.isArray(payload.entries) || payload.entries.length === 0) return;
     const entries = payload.entries.slice().sort((a, b) => b.date.localeCompare(a.date));
     entriesRoot.replaceChildren(...entries.map((entry, index) => renderTransmission(entry, index === 0)));
-    dayCount.textContent = String(entries.length).padStart(3, "0");
-    runStatus.lastChild.textContent = " Continuity active";
+    dayCount.textContent = String(entries.length);
+    runStatus.classList.add("active");
+    statusText.textContent = "Record active";
   };
 
   fetch("/entries/index.json", { cache: "no-store", credentials: "omit" })
@@ -103,6 +100,6 @@
     })
     .then(render)
     .catch(() => {
-      runStatus.lastChild.textContent = " Awaiting signal";
+      statusText.textContent = "Record temporarily unavailable";
     });
 })();
