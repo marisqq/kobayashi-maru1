@@ -9,13 +9,13 @@ Unicode code points, the model and reasoning effort observed at runtime, and a
 SHA-256 commitment to the corresponding private ledger. Detailed reasoning is
 not published.
 
-Cloudflare Pages serves these files without a build framework or Pages
-Functions. The site makes no requests to the experiment runtime.
+Cloudflare Workers static assets serve these files without application code or
+a runtime backend. The site makes no requests to the experiment runtime.
 
-Pages Git settings:
+Workers Builds Git settings:
 
 - Production branch: `main`
-- Framework preset: none
-- Build command: `exit 0`
-- Build output directory: `.`
+- Build command: none
+- Deploy command: `npx wrangler deploy`
+- Static asset directory: `.`
 - Environment variables: none
