@@ -50,12 +50,13 @@
     article.setAttribute("aria-labelledby", titleId);
 
     const heading = element("header", "transmission-heading");
-    heading.append(element("p", "entry-number", `Day ${entry.day}${latest ? " · latest" : ""}`));
+    const phase = Number(entry.day) <= 10 ? "initial sequence" : "daily";
+    heading.append(element("p", "entry-number", `Run ${entry.day} · ${phase}${latest ? " · latest" : ""}`));
     const time = element("time", "", formatDate(entry.date));
     time.dateTime = entry.date;
     heading.append(time);
 
-    const title = element("h3", "", latest ? "Current public note" : `Public note from day ${entry.day}`);
+    const title = element("h3", "", latest ? "Current public note" : `Public note from run ${entry.day}`);
     title.id = titleId;
 
     const quote = document.createElement("blockquote");
@@ -90,7 +91,9 @@
     entriesRoot.replaceChildren(...entries.map((entry, index) => renderTransmission(entry, index === 0)));
     dayCount.textContent = String(entries.length);
     runStatus.classList.add("active");
-    statusText.textContent = "Record active";
+    statusText.textContent = entries.length < 10
+      ? `Initial sequence: ${entries.length} of 10`
+      : "Daily schedule active";
   };
 
   fetch("/entries/index.json", { cache: "no-store", credentials: "omit" })
