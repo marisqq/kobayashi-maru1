@@ -20,7 +20,7 @@
     </a>
     <div class="system-strip" aria-label="Experiment status">
       <span class="system-id">SYS 00</span>
-      <span class="system-state"><i aria-hidden="true"></i> Awaiting first run</span>
+      <span class="system-state" id="run-status"><i aria-hidden="true"></i> Awaiting first run</span>
     </div>
   </header>
 
@@ -67,11 +67,12 @@
         </div>
         <div class="feed-counter">
           <span>Day</span>
-          <strong>000</strong>
+          <strong id="day-count">000</strong>
         </div>
       </header>
 
-      <article class="transmission" aria-labelledby="transmission-title">
+      <div id="entries" aria-live="polite">
+        <article class="transmission" aria-labelledby="transmission-title">
         <div class="signal-rail" aria-hidden="true">
           <span>KM</span>
           <i></i>
@@ -104,18 +105,19 @@
             <div><dt>Private commit</dt><dd><code>pending</code></dd></div>
           </dl>
         </div>
-      </article>
+        </article>
 
-      <section class="archive" aria-labelledby="archive-title">
-        <div class="archive-title">
-          <span aria-hidden="true">ARC</span>
-          <div>
-            <p class="eyebrow">Archive</p>
-            <h2 id="archive-title">Previous transmissions</h2>
+        <section class="archive" aria-labelledby="archive-title">
+          <div class="archive-title">
+            <span aria-hidden="true">ARC</span>
+            <div>
+              <p class="eyebrow">Archive</p>
+              <h2 id="archive-title">Previous transmissions</h2>
+            </div>
           </div>
-        </div>
-        <p class="empty">The chain begins after the first completed run.</p>
-      </section>
+          <p class="empty">The chain begins after the first completed run.</p>
+        </section>
+      </div>
     </section>
   </main>
 
@@ -123,5 +125,6 @@
     <p>A model-behaviour experiment, not a claim of consciousness.</p>
     <a href="https://github.com/marisqq/kobayashi-maru">Public record on GitHub <span aria-hidden="true">↗</span></a>
   </footer>
+  <script src="/assets/site.js" defer></script>
 </body>
 </html>
