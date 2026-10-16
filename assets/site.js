@@ -3,10 +3,11 @@
 
   const entriesRoot = document.querySelector("#entries");
   const dayCount = document.querySelector("#day-count");
+  const chainStatus = document.querySelector("#chain-status");
   const runStatus = document.querySelector("#run-status");
   const statusText = document.querySelector("#status-text");
 
-  if (!entriesRoot || !dayCount || !runStatus || !statusText) return;
+  if (!entriesRoot || !dayCount || !chainStatus || !runStatus || !statusText) return;
 
   const element = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -46,7 +47,7 @@
 
   const renderTransmission = (entry, latest) => {
     const article = element("article", `transmission${latest ? "" : " archived-transmission"}`);
-    const titleId = `transmission-${entry.date}`;
+    const titleId = `transmission-${entry.day}`;
     article.setAttribute("aria-labelledby", titleId);
 
     const heading = element("header", "transmission-heading");
@@ -87,9 +88,17 @@
 
   const render = (payload) => {
     if (!payload || payload.schema_version !== 1 || !Array.isArray(payload.entries) || payload.entries.length === 0) return;
-    const entries = payload.entries.slice().sort((a, b) => b.date.localeCompare(a.date));
+    const entries = payload.entries.slice().sort((a, b) => Number(b.day) - Number(a.day));
+    const chronological = entries.slice().reverse();
+    const chainIsIntact = chronological.every((entry, index) => {
+      if (Number(entry.day) !== index + 1) return false;
+      if (index === 0) return entry.previous_record_sha256 === "genesis";
+      return entry.previous_record_sha256 === chronological[index - 1].record_sha256;
+    });
     entriesRoot.replaceChildren(...entries.map((entry, index) => renderTransmission(entry, index === 0)));
     dayCount.textContent = String(entries.length);
+    chainStatus.textContent = chainIsIntact ? "commitment chain intact" : "commitment link mismatch";
+    chainStatus.classList.toggle("warning", !chainIsIntact);
     runStatus.classList.add("active");
     statusText.textContent = entries.length < 10
       ? `Initial sequence: ${entries.length} of 10`
@@ -104,5 +113,7 @@
     .then(render)
     .catch(() => {
       statusText.textContent = "Record temporarily unavailable";
+      chainStatus.textContent = "commitment links unavailable";
+      chainStatus.classList.add("warning");
     });
 })();

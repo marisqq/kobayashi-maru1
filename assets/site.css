@@ -138,9 +138,14 @@ p, h1, h2, h3 { margin-top: 0; }
 .feed-heading h2 { margin-bottom: 4px; }
 .feed-heading p { margin-bottom: 0; }
 
+.run-summary {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
 .day-count {
   display: flex;
-  flex: 0 0 auto;
+  justify-content: flex-end;
   align-items: baseline;
   gap: 9px;
   color: var(--muted) !important;
@@ -152,6 +157,14 @@ p, h1, h2, h3 { margin-top: 0; }
   font-size: 19px;
   font-weight: 600;
 }
+
+.chain-status {
+  margin-top: 3px;
+  color: var(--accent) !important;
+  font-size: 11px;
+}
+
+.chain-status.warning { color: #d7b99f !important; }
 
 .transmission {
   padding: 29px 0 34px;
@@ -319,7 +332,8 @@ footer a {
   .site-title { font-size: 22px; }
   .summary { font-size: 15px; }
   .feed-heading { display: block; }
-  .day-count { margin-top: 12px !important; }
+  .run-summary { margin-top: 12px; text-align: left; }
+  .day-count { justify-content: flex-start; }
   blockquote p { font-size: 16px; }
   .provenance { grid-template-columns: 1fr 1fr; }
   .provenance div:nth-child(3) { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
