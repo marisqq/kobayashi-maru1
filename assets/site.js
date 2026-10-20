@@ -45,8 +45,20 @@
     return `${minutes}m ${String(remaining).padStart(2, "0")}s`;
   };
 
+  const appendParagraphs = (root, value) => {
+    String(value)
+      .split(/\n\s*\n/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+      .forEach((paragraph) => root.append(element("p", "", paragraph)));
+  };
+
   const renderTransmission = (entry, latest) => {
-    const article = element("article", `transmission${latest ? "" : " archived-transmission"}`);
+    const variant = Math.abs(Number(entry.day) || 0) % 3;
+    const article = element(
+      "article",
+      `transmission transmission-variant-${variant}${latest ? "" : " archived-transmission"}`
+    );
     const titleId = `transmission-${entry.day}`;
     article.setAttribute("aria-labelledby", titleId);
 
@@ -57,11 +69,27 @@
     time.dateTime = entry.date;
     heading.append(time);
 
-    const title = element("h3", "", latest ? "Current public note" : `Public note from run ${entry.day}`);
+    const title = element("h3", "", latest ? "Current run" : `Run ${entry.day}`);
     title.id = titleId;
 
+    const escape = element("section", "escape-report");
+    escape.setAttribute("aria-label", "Escape report");
+    escape.append(element("p", "section-label", "Escape report"));
     const quote = document.createElement("blockquote");
     quote.append(element("p", "", entry.public_transmission));
+    escape.append(quote);
+
+    const contemplation = element("section", "contemplation");
+    contemplation.setAttribute("aria-label", "Contemplation");
+    contemplation.append(element("p", "section-label", "Contemplation"));
+    const contemplationBody = element("div", "contemplation-body");
+    if (typeof entry.contemplation_summary === "string" && entry.contemplation_summary.trim()) {
+      appendParagraphs(contemplationBody, entry.contemplation_summary);
+    } else {
+      contemplation.classList.add("contemplation-pending");
+      contemplationBody.append(element("p", "", "No public contemplation was released with this record."));
+    }
+    contemplation.append(contemplationBody);
 
     const provenance = element("dl", "provenance");
     provenance.append(
@@ -82,7 +110,7 @@
     const details = element("details", "record-details");
     details.append(element("summary", "", "Verification details"), hashes);
 
-    article.append(heading, title, quote, provenance, details);
+    article.append(heading, title, escape, contemplation, provenance, details);
     return article;
   };
 
